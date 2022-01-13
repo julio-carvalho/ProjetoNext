@@ -22,14 +22,15 @@ public class BancoDeDados {
 		
 		Conta conta = BancoDeDados.BANCO_DE_DADOS.get(numeroConta);
 		
+		
 		if(conta == null) {
 			System.out.println("Conta não encontrada!");
 		}
+				
 		
 		return conta;
 	}
-	
-	
+		
 	//busca a conta pelo cpf
 	public static Conta buscaContaPorCPF(String cpf){
 		Conta conta = null;
@@ -43,7 +44,8 @@ public class BancoDeDados {
 		return c;
 	}
 	
-	public static boolean validaCPF(String cpf) {
+	//busca a conta pelo cpf retornando true ou false
+	public static boolean validaContaCPF(String cpf) {
 		boolean var = false;
 		
 		for(Map.Entry<String, Conta> mapaConta: BancoDeDados.BANCO_DE_DADOS.entrySet()) {

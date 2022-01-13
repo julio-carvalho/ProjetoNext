@@ -60,8 +60,4 @@ public class Conta {
 	public void setContaPoupanca(ContaPoupanca contaPoupanca) {
 		this.contaPoupanca = contaPoupanca;
 	}
-	
-	
-	
-	
 }

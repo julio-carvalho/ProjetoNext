@@ -31,9 +31,10 @@ public class ContaBO {
 		cc.setNumero(UUID.randomUUID().toString());
 		cc.setSaldo(0);
 		cc.setSenha(senha);
+		cc.getCliente().setTipoCliente(TipoCliente.COMUM);
 		
 		cc.getContaCorrente().setAtivado(true);
-		//cc.getContaPoupanca().setAtivado(false);
+		
 		cc.getContaCorrente().setTaxaManutencao(0.45);
 		BancoDeDados.insereConta(cc.getNumero(), cc);
 		System.out.println("\nConta cadastrada com sucesso!\nO número da sua conta é: " + cc.getNumero());
@@ -89,6 +90,11 @@ public class ContaBO {
 		conta.setSaldo(saldo);
 		
 		System.out.println("Depósito realizado com sucesso!\nSaldo atual: R$" + conta.getSaldo());
+		
+		//valida e atualiza o tipo do cliente
+		TipoCliente aux = verificaTipo(conta.getSaldo());
+		conta.getCliente().setTipoCliente(aux);
+		
 		BancoDeDados.insereConta(conta.getNumero(), conta);
 	}
 	
@@ -98,6 +104,11 @@ public class ContaBO {
 			saldo -= valor;
 			conta.setSaldo(saldo);
 			System.out.println("\nSaque realizado com sucesso!\nSaldo atual: R$" + conta.getSaldo());
+			
+			//valida e atualiza o tipo do cliente
+			TipoCliente aux = verificaTipo(conta.getSaldo());
+			conta.getCliente().setTipoCliente(aux);
+			
 			BancoDeDados.insereConta(conta.getNumero(), conta);
 		} else {
 			System.out.println("\nSaldo insuficiente!\nSaldo atual: R$" + conta.getSaldo());
@@ -114,29 +125,41 @@ public class ContaBO {
 			
 			saldoDestino += valor;
 			contaDestino.setSaldo(saldoDestino);
-			System.out.println("Transferência realizado com sucesso!\nSaldo atual: R$" + conta.getSaldo());
+			System.out.println("\nTransferência realizado com sucesso!\nSaldo atual: R$" + conta.getSaldo());
+			
+			//valida e atualiza o tipo do cliente
+			TipoCliente aux = verificaTipo(conta.getSaldo());
+			conta.getCliente().setTipoCliente(aux);
+			
+			BancoDeDados.insereConta(conta.getNumero(), conta);
 		} else {
 			System.out.println("\nSaldo insuficiente!\nSaldo atual: R$" + conta.getSaldo());
 		}
 	}
 		
-	public boolean validaCpf(String cpf) {
-		boolean var = false;
-		boolean verifica = false;
-		verifica = BancoDeDados.validaCPF(cpf);
-		if(verifica == true) {
-			System.out.println("Entro no true");
-			var = true;
-		} else {
-			System.out.println("entrou no false");
-			var = false;
-		}
-		return var;
-	}
-	
 	public void descontarTaxa(Conta conta) {
 		double saldo = conta.getSaldo() * (1-(conta.getContaCorrente().getTaxaManutencao()/100));
 		conta.setSaldo(saldo);
 		System.out.println("Taxa aplicada!\nSaldo atual: R$" + conta.getSaldo());
+		
+		//valida e atualiza o tipo do cliente
+		TipoCliente aux = verificaTipo(conta.getSaldo());
+		conta.getCliente().setTipoCliente(aux);
+		
+		BancoDeDados.insereConta(conta.getNumero(), conta);
+	}
+	
+	
+	//Verifica se o tipo da Conta é Comum, Super ou Premium
+	public TipoCliente verificaTipo(double valor) {
+		if(valor < 5000)
+			//conta.setTipo(TipoCliente.COMUM);
+			return TipoCliente.COMUM;
+		else if(valor >= 5000 && valor < 15000)
+			//conta.setTipo(TipoCliente.SUPER);
+			return TipoCliente.SUPER;
+		else
+			//conta.setTipo(TipoCliente.PREMIUM);
+			return TipoCliente.PREMIUM;
 	}
 }

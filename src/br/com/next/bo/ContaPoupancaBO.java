@@ -11,7 +11,7 @@ public class ContaPoupancaBO {
 		String nome = cp.getCliente().getNome();
 		String cpf = cp.getCliente().getCpf();
 		double valor = cp.getSaldo();
-		TipoCliente tp = cp.getCliente().getTipoCliente();
+		//TipoCliente tp = cp.getCliente().getTipoCliente();
 		
 		System.out.println("Conta Poupança");
 		System.out.println("Nome: " + nome);
@@ -51,11 +51,12 @@ public class ContaPoupancaBO {
 		cp.setSaldo(saldo);
 		
 		System.out.println("Depósito realizado com sucesso!\nSaldo atual: " + cp.getSaldo());
+		
 		BancoDeDados.insereConta(cp.getNumero(), cp);
 	}
 	
 	//transferir para conta corrente
-	public void transferirParaContaCorrente(ContaPoupanca cp, Conta contaDestino, double valor) {
+	public void transferir(ContaPoupanca cp, Conta contaDestino, double valor) {
 		double saldoAtual = cp.getSaldo();
 		double saldoDestino = contaDestino.getSaldo();
 		
@@ -66,10 +67,18 @@ public class ContaPoupancaBO {
 			saldoDestino += valor;
 			contaDestino.setSaldo(saldoDestino);
 			System.out.println("Transferência realizado com sucesso!\nSaldo atual: R$" + cp.getSaldo());
+			
+			BancoDeDados.insereConta(cp.getNumero(), cp);
 		} else {
 			System.out.println("\nSaldo insuficiente!\nSaldo atual: R$" + cp.getSaldo());
 		}
 	}
 	
-	
+	public void aplicarRendimento(ContaPoupanca cp) {
+		double saldo = cp.getSaldo() * (1+(cp.getTaxaRendimento()/100));
+		cp.setSaldo(saldo);
+		System.out.println("Rendimento Aplicado!\nSaldo atual: R$" + cp.getSaldo());
+		
+		BancoDeDados.insereConta(cp.getNumero(), cp);
+	}
 }

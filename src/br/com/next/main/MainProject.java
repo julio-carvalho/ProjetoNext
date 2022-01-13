@@ -59,8 +59,18 @@ public class MainProject {
 					
 					//verifica se o cpf possui 11 caracteres e apenas números
 					while (!cpf.matches("[0-9]*") || cpf.length()!=11) {
-						System.out.println("Insira apenas os 11 digitos do CPF");
+						System.out.println("CPF inválido, insira apenas os 11 digitos do CPF: ");
 						cpf = scan.next();
+					}
+					
+					//validação caso o cpf digitado já esteja sendo utilizado
+					boolean valida = false;
+					valida = BancoDeDados.validaContaCPF(cpf);
+					
+					while(valida) {
+						System.out.println("CPF em uso, digite um novo CPF: ");
+						cpf = scan.next();
+						valida = BancoDeDados.validaContaCPF(cpf);
 					}
 					
 					//data de nascimento
@@ -182,7 +192,7 @@ public class MainProject {
 						valor = scan.nextDouble();
 					}
 					
-					//contaCorrente.saque(valor, auxCpf);
+					contaBO.sacar(conta, valor);
 				break;
 				case 2:
 					System.out.println("\nDepositar dinheiro");
@@ -202,37 +212,27 @@ public class MainProject {
 					contaBO.consultarSaldoContaCorrente(conta);
 				break;
 				case 4:
-					String cpfDestino = " ";
 					System.out.println("\nTransferir");
-					System.out.println("Digite o valor da transferência: ");
-					valor = scan.nextDouble();
+					System.out.println("Digite o número da conta destino: ");
+					String numeroConta = scan.next();
 					
-					//verifica o valor digitado não é um número negativo
-					while(valor < 0) {
-						System.out.println("Valor inválido, digite novamente o valor do depósito: ");
+					Conta contaDestino = BancoDeDados.buscaContaPorNumero(numeroConta);
+					
+					if(contaDestino != null) {
+						System.out.println("Digite o valor da transferência: ");
 						valor = scan.nextDouble();
-					}
-					
-					System.out.println("Digite o CPF destino: ");
-					cpfDestino = scanString.next();
-					
-					//verifica se o cpf possui 11 caracteres e apenas números
-					while (!cpfDestino.matches("[0-9]*") || cpfDestino.length()!=11) {
-						System.out.println("Insira apenas os 11 digitos do CPF: ");
-						cpfDestino = scan.next();
-					}
-					
-					boolean var = false;
-					var = contaBO.validaCpf(cpfDestino);
-					System.out.println(var);
-					
-					//validação
-					if(var) {
-						Conta contaDestino = BancoDeDados.buscaContaPorCPF(cpfDestino);
+						
+						//verifica o valor digitado não é um número negativo
+						while(valor < 0) {
+							System.out.println("Valor inválido, digite novamente o valor do depósito: ");
+							valor = scan.nextDouble();
+						}
+						
 						contaBO.transferir(conta, contaDestino, valor);
 					} else {
-						System.out.println("Conta não encontrada!");
+						continue;
 					}
+					
 				break;
 				case 5:
 					System.out.println("\nAplicar taxa de manutenção");
@@ -408,14 +408,35 @@ public class MainProject {
 						valor = scan.nextDouble();
 					}
 					
-					cpb.transferirParaContaCorrente(contaPoup, conta, valor);
+					cpb.transferir(contaPoup, conta, valor);
 				break;
 				case 5:
 					System.out.println("\nTransferir para outro tipo de conta");
+					System.out.println("Digite o número da conta destino: ");
+					String numeroConta = scan.next();
+					
+					Conta contaDestino = BancoDeDados.buscaContaPorNumero(numeroConta);
+					
+					//valida se o numero da conta digita pelo usuario existe no sistema, se existir continua com a transação
+					if(contaDestino != null) {
+						System.out.println("Digite o valor da transferência: ");
+						valor = scan.nextDouble();
+						
+						//verifica o valor digitado não é um número negativo
+						while(valor < 0) {
+							System.out.println("Valor inválido, digite novamente o valor do depósito: ");
+							valor = scan.nextDouble();
+						}
+						
+						cpb.transferir(contaPoup, contaDestino, valor);
+					} else {
+						continue;
+					}
+					
 					break;
 				case 6:
 					System.out.println("\nAplicar rendimento");
-					//contaPoupanca.aplicarRendimento();
+					cpb.aplicarRendimento(contaPoup);
 					break;
 				case 7:
 					System.out.println("\nIr para o menu da Conta Corrente!");
