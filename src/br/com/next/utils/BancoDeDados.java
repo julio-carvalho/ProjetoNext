@@ -31,16 +31,16 @@ public class BancoDeDados {
 	
 	
 	//busca a conta pelo cpf
-	public static Conta buscarContaPorCPF(String cpf){
-		//List<Conta> lConta = new ArrayList<Conta>();
+	public static Conta buscaContaPorCPF(String cpf){
 		Conta conta = null;
+		Conta c = null;
 		for(Map.Entry<String, Conta> mapaConta: BancoDeDados.BANCO_DE_DADOS.entrySet()) {
 			conta = mapaConta.getValue();
 			if(conta.getCliente().getCpf().equals(cpf)) {
-				return conta;
+				c = conta;
 			}
 		}
-		return conta;
+		return c;
 	}
 	
 	public static boolean validaCPF(String cpf) {
@@ -50,9 +50,31 @@ public class BancoDeDados {
 			Conta conta = mapaConta.getValue();
 			if(conta.getCliente().getCpf().equals(cpf)) {
 				var = true;
-			} else {
-				var = false;
+			} 
+		}
+		return var;
+	}
+	
+	public static Conta buscaPix(String chave) {
+		Conta conta = null;
+		Conta c = null;
+		for(Map.Entry<String, Conta> mapaConta: BancoDeDados.BANCO_DE_DADOS.entrySet()) {
+			conta = mapaConta.getValue();
+			if(conta.getPix().getChave().equals(chave)) {
+				c = conta;
 			}
+		}
+		return c;
+	}
+	
+	public static boolean validaPix(String chave) {
+		boolean var = false;
+		
+		for(Map.Entry<String, Conta> mapaConta: BancoDeDados.BANCO_DE_DADOS.entrySet()) {
+			Conta conta = mapaConta.getValue();
+			if(conta.getPix().getChave().equals(chave)) {
+				var = true;
+			} 
 		}
 		return var;
 	}

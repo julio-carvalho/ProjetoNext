@@ -1,16 +1,23 @@
+//Julio Cesar Menezes Carvalho
+
 package br.com.next.main;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.UUID;
 
 import br.com.next.bean.Cliente;
 import br.com.next.bean.Conta;
+import br.com.next.bean.ContaPoupanca;
 import br.com.next.bean.Endereco;
+import br.com.next.bean.Pix;
 import br.com.next.bo.ClienteBO;
 import br.com.next.bo.ContaBO;
+import br.com.next.bo.ContaPoupancaBO;
 import br.com.next.bo.EnderecoBO;
+import br.com.next.bo.PixBO;
 import br.com.next.utils.BancoDeDados;
 
 public class MainProject {
@@ -18,6 +25,7 @@ public class MainProject {
 	
 	public static void main(String[] args) {
 		menuPrincipal();
+		System.exit(0);
 	}
 	
 	public static void menuPrincipal() {
@@ -104,7 +112,7 @@ public class MainProject {
 					}
 					
 					//cadastra o cliente na conta
-					contaBO.cadastrarConta(cliente, 1, senha);
+					contaBO.cadastrarConta(cliente, senha);
 				break;
 				case 2:
 					ContaBO contaBOlogin = new ContaBO();
@@ -117,15 +125,14 @@ public class MainProject {
 					String auxSenha = scan.next();
 					
 					ver = contaBOlogin.login(auxCpf, auxSenha);
-					System.out.println(ver);
+					//System.out.println(ver);
 					
 					//se ver for igual a true, entra no "menuLogado()", se for false informa que os dados estão inválidos
-					if(ver) {
-						System.out.println("Logado!");
+					if(ver)
 						menuLogado(auxCpf);
-					} else {
+					else
 						System.out.println("Usuário ou senha inválida!");
-					}
+						
 				break;
 				case 3:
 					//caso o usuario digite 3, o programa finaliza deixando o continuar como false
@@ -142,8 +149,15 @@ public class MainProject {
 	public static void menuLogado(String cpf) {
 		Scanner scan = new Scanner(System.in);
 		Scanner scanString = new Scanner(System.in);
-		Conta conta = BancoDeDados.buscarContaPorCPF(cpf);
+		
 		ContaBO contaBO = new ContaBO(); 
+		ContaPoupancaBO cpBO = new ContaPoupancaBO();
+		PixBO pixBO = new PixBO();
+		
+		//armazena a conta logada
+		Conta conta = BancoDeDados.buscaContaPorCPF(cpf);
+
+		
 		int menu = 0;
 		double valor = 0;
 		boolean continuar = true;
@@ -209,12 +223,12 @@ public class MainProject {
 					}
 					
 					boolean var = false;
-					var = contaBO.valida2(cpfDestino);
+					var = contaBO.validaCpf(cpfDestino);
 					System.out.println(var);
 					
 					//validação
 					if(var) {
-						Conta contaDestino = BancoDeDados.buscarContaPorCPF(cpfDestino);
+						Conta contaDestino = BancoDeDados.buscaContaPorCPF(cpfDestino);
 						contaBO.transferir(conta, contaDestino, valor);
 					} else {
 						System.out.println("Conta não encontrada!");
@@ -222,77 +236,110 @@ public class MainProject {
 				break;
 				case 5:
 					System.out.println("\nAplicar taxa de manutenção");
-					//contaCorrente.descontarTaxa();
+					contaBO.descontarTaxa(conta);
 				break;
 				case 6:
+					System.out.println("\nCriar Conta Poupança");
+					
 					int opcConta = 0;
-					System.out.println("Criar Conta Poupança");
 					System.out.println("Você deseja abrir uma Conta Poupança?"
 							+ "\nA conta poupança tem a vantagem de oferecer um rendimento em cima do valor de saldo, na porcentagem de 0.03%."
 							+ "\n1 - Sim\n2 - Não");
 					opcConta = scan.nextInt();
 					
 					if(opcConta == 1) {
-						/*valida se a conta já foi criada
-						if(!contaPoupanca.validaConta())
-							contaPoupanca.cadastrarCP(clienteBo, auxCpf);
+						boolean validacao = false;
+						
+						//valida se a conta já foi criada
+						ContaPoupanca contaP = conta.getContaPoupanca();
+						validacao = cpBO.validaContaPoupanca(contaP);
+						if(!validacao)
+							contaBO.cadastraContaPoupanca(conta);
 						else
-							System.out.println("Sua Conta Poupança já está ativada.");*/
+							System.out.println("Sua Conta Poupança já está ativada.");
 					} else {
 						System.out.println("Voltando ao menu");
 					}
 				break;
 				case 7:
-					/*System.out.println("\nAcessar menu Conta Poupança");
+					System.out.println("\nAcessar menu Conta Poupança");
+					boolean validacao = false;
 					
-					//valida se a conta poupança foi criada, se for true entra no menu da conta poupança
-					if(contaPoupanca.validaConta()) {
+					//valida se a conta já foi criada
+					ContaPoupanca contaP = conta.getContaPoupanca();
+					validacao = cpBO.validaContaPoupanca(contaP);
+					if(validacao) {
 						System.out.println("\nAcessando menu Conta Poupança!");
-						menuContaPoupanca(auxCpf, clienteBo);
+						menuContaPoupanca(contaP, conta);
 					} else {
 						System.out.println("\nSua Conta Poupança está desativada!");
-					}*/
+					}
 				break;
 				case 8:
-					/*
-					System.out.println("Ativar PIX");
-					if(!pix.validaPix())
-						pix.ativarPix();
-					else
+					System.out.println("\nAtivar PIX");
+					
+					Pix pix = conta.getPix();
+					
+					if(!pixBO.validaPix(pix)) {
+						String chave = "";
+						System.out.println("Digite a opção do tipo de chave que você deseja cadastrar: ");
+						System.out.println("1 - CPF\n2 - EMAIL\n3 - TELEFONE\n4 - CHAVE ALEATÓRIA");
+						int opcChave = scan.nextInt();
+						
+						while(opcChave < 1 && opcChave > 4) {
+							System.out.println("Opção inválida, digite novamente a opção do tipo de chave que você deseja cadastrar: ");
+							System.out.println("1 - CPF\n2 - EMAIL\n3 - TELEFONE\n4 - CHAVE ALEATÓRIA");
+							opcChave = scan.nextInt();
+						}
+						
+						if(opcChave == 4) {
+							chave = UUID.randomUUID().toString();
+						} else {
+							System.out.println("Digite a chave do pix: ");
+							chave = scan.next();
+						}
+						pixBO.cadastrarPix(conta, opcChave, chave);
+					}else {
 						System.out.println("Seu pix já está ativado.");
-					*/
+					}
 				break;
 				case 9:
-					/*
 					System.out.println("Fazer PIX");
+					Pix pixValida = conta.getPix();
 					
 					//valida se o pix já está ativado
-					if(pix.validaPix()) {
+					if(pixBO.validaPix(pixValida)) {
 						int opcPix = 0;
-						System.out.println("Digite o tipo de método que você deseja pagar com o pix");
-						System.out.println("1 - Email\n2 - CPF\n3 - Telefone\n4 - Chave aleatória");
-						opcPix = scan.nextInt();
+						boolean valida = false;
 						
-						while(opcPix < 1 && opcPix > 4) {
-							System.out.println("Opção inválida! Digite novamente o tipo de método que você deseja pagar com o pix");
-							System.out.println("1 - Email\n2 - CPF\n3 - Telefone\n4 - Chave aleatória");
-							opcPix = scan.nextInt();
-						}
+						System.out.println("Digite a chave do pix: ");
+						String chave = scan.next();
 						
-						System.out.println("Digite o valor do pix: ");
-						valor = scan.nextDouble();
+						valida = BancoDeDados.validaPix(chave);
 						
-						//verifica o valor digitado não é um número negativo
-						while(valor < 0) {
-							System.out.println("Valor inválido, digite novamente o valor do depósito: ");
+						//valida se a chave digita está cadastrada em alguma conta
+						if(valida) {
+							//armazena a conta destino buscando pela chave do pix
+							Conta cd = BancoDeDados.buscaPix(chave);
+							
+							System.out.println("Digite o valor do pix: ");
 							valor = scan.nextDouble();
+							
+							//verifica o valor digitado não é um número negativo
+							while(valor < 0) {
+								System.out.println("Valor inválido, digite novamente o valor do depósito: ");
+								valor = scan.nextDouble();
+							}
+							
+							pixBO.pagarPix(conta, cd, valor);
+						} else {
+							System.out.println("\nChave não encontrada!");
 						}
 						
-						pix.pagarPix(opcPix, valor, contaCorrente);
 					} else {
 						System.out.println("\nO seu pix está desativado!");
 					}
-					*/
+					
 				break;
 				case 10:
 					//deixa continuar como false e desloga da conta
@@ -301,6 +348,81 @@ public class MainProject {
 				break;
 				default:
 					System.out.println("Opção inválida");
+				break;
+			}
+		}
+	}
+	
+	public static void menuContaPoupanca(ContaPoupanca contaPoup, Conta conta) {
+		Scanner scan = new Scanner(System.in);
+		Scanner scanString = new Scanner(System.in);
+		ContaPoupancaBO cpb = new ContaPoupancaBO();
+		
+		int menu = 0;
+		double valor = 0;
+		boolean continuar = true;
+		
+		while(continuar) {
+			System.out.println("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+			System.out.println("        MENU CONTA POUPANÇA\n* - Digite uma opção: \n1 - Saque\n2 - Depositar dinheiro\n3 - Consultar Saldo"
+														+ "\n4 - Transferir para Conta Corrente\n5 - Transferir para outro tipo de conta\n6 - Aplicar rendimento\n7 - Sair");
+			System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+			menu = scan.nextInt();
+
+			switch(menu) {
+				case 1:
+					System.out.println("\nSaque");
+					System.out.println("Digite o valor do saque: ");
+					valor = scan.nextDouble();
+					
+					while(valor < 0) {
+						System.out.println("Valor inválido, digite novamente o valor da transferência: ");
+						valor = scan.nextDouble();
+					}
+					
+					cpb.sacar(contaPoup, valor);
+				break;
+				case 2:
+					System.out.println("\nDepositar dinheiro");
+					System.out.println("Digite o valor do depósito: ");
+					valor = scan.nextDouble();
+					
+					while(valor < 0) {
+						System.out.println("Valor inválido, digite novamente o valor do depósito: ");
+						valor = scan.nextDouble();
+					}
+					
+					cpb.depositar(contaPoup, valor);
+				break;
+				case 3:
+					System.out.println("\nConsultar saldo");
+					cpb.consultarSaldoContaPoupanca(contaPoup);
+				break;
+				case 4:
+					System.out.println("\nTransferir para Conta Corrente");
+					System.out.println("Digite o valor da transferência: ");
+					valor = scan.nextDouble();
+					
+					while(valor < 0) {
+						System.out.println("Valor inválido, digite novamente o valor do depósito: ");
+						valor = scan.nextDouble();
+					}
+					
+					cpb.transferirParaContaCorrente(contaPoup, conta, valor);
+				break;
+				case 5:
+					System.out.println("\nTransferir para outro tipo de conta");
+					break;
+				case 6:
+					System.out.println("\nAplicar rendimento");
+					//contaPoupanca.aplicarRendimento();
+					break;
+				case 7:
+					System.out.println("\nIr para o menu da Conta Corrente!");
+					continuar = false;
+				break;
+				default:
+					System.out.println("\nOpção inválida");
 				break;
 			}
 		}

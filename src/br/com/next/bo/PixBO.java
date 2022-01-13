@@ -8,6 +8,7 @@ public class PixBO {
 	
 	public Pix cadastrarPix(Conta conta, int tipoChave, String chave) {
 		Pix pix = new Pix();
+		conta.setPix(pix);
 		TipoChavePix tcp = null;
 		pix.setAtivado(true);
 		pix.setChave(chave);
@@ -28,6 +29,34 @@ public class PixBO {
 		pix.setTipoChavePix(tcp);
 		
 		conta.setPix(pix);
+		
+		System.out.println("PIX cadastrado com sucesso!\nA chave do seu PIX é: " + pix.getChave());
 		return pix;
+	}
+	
+	public boolean validaPix(Pix pix) {
+		boolean valida = false;
+		if(pix.isAtivado())
+			valida = true;
+		else
+			valida = false;
+		
+		return valida;
+	}
+	
+	public void pagarPix(Conta conta, Conta contaDestino, double valor) {
+		double saldoAtual = conta.getSaldo();
+		double saldoDestino = contaDestino.getSaldo();
+		
+		if(saldoAtual >= valor) {
+			saldoAtual -= valor;
+			conta.setSaldo(saldoAtual);
+			
+			saldoDestino += valor;
+			contaDestino.setSaldo(saldoDestino);
+			System.out.println("PIX realizado com sucesso!\nSaldo atual: R$" + conta.getSaldo());
+		} else {
+			System.out.println("\nSaldo insuficiente!\nSaldo atual: R$" + conta.getSaldo());
+		}
 	}
 }

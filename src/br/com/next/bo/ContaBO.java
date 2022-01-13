@@ -7,58 +7,67 @@ import br.com.next.bean.Cliente;
 import br.com.next.bean.Conta;
 import br.com.next.bean.ContaCorrente;
 import br.com.next.bean.ContaPoupanca;
+import br.com.next.bean.Pix;
 import br.com.next.bean.TipoCliente;
 import br.com.next.utils.BancoDeDados;
 
 
 public class ContaBO {
-	/*private Conta conta;
+
 	
-	
-	public ContaBO(Conta conta) {
-		this.conta = conta;
+	public Conta cadastrarConta(Cliente cliente, String senha) {		
+		Conta cc = new Conta();
+		
+		ContaCorrente contaCorrente = new ContaCorrente();
+		ContaPoupanca contaPoupanca = new ContaPoupanca();
+		Pix pix = new Pix();
+		
+		cc.setContaCorrente(contaCorrente);
+		cc.setContaPoupanca(contaPoupanca);
+		cc.setPix(pix);
+		cc.getPix().setChave(" ");
+		
+		cc.setCliente(cliente);
+		cc.setNumero(UUID.randomUUID().toString());
+		cc.setSaldo(0);
+		cc.setSenha(senha);
+		
+		cc.getContaCorrente().setAtivado(true);
+		//cc.getContaPoupanca().setAtivado(false);
+		cc.getContaCorrente().setTaxaManutencao(0.45);
+		BancoDeDados.insereConta(cc.getNumero(), cc);
+		System.out.println("\nConta cadastrada com sucesso!\nO número da sua conta é: " + cc.getNumero());
+		
+		return cc;
 	}
 	
-	
-	public ContaBO(Cliente cliente, int tipoConta, String senha) {
-		this.conta = this.gerarConta(cliente, tipoConta, senha);
-	}*/
-	
-	public Conta cadastrarConta(Cliente cliente, int tipoConta, String senha) {
-		//1 - Conta Corrente
-		//2 - Conta Poupança
-		if(tipoConta == 1) {
-			Conta cc = new Conta();
-			ContaCorrente contaCorrente = new ContaCorrente();
-			
-			cc.setContaCorrente(contaCorrente);
-			cc.setCliente(cliente);
-			cc.setNumero(UUID.randomUUID().toString());
-			cc.setSaldo(0);
-			cc.setSenha(senha);
-			cc.getContaCorrente().setAtivado(true);
-			cc.getContaCorrente().setTaxaManutencao(0.45);
-			BancoDeDados.insereConta(cc.getNumero(), cc);
-			System.out.println("\nConta cadastrada com sucesso!\nO número da sua conta é: " + cc.getNumero());
-			
-			return cc;
-			
-		} else if(tipoConta == 2) {
-			ContaPoupanca cp = new ContaPoupanca();
-			cp.setCliente(cliente);
-			cp.setNumero(UUID.randomUUID().toString());
-			cp.setSaldo(0);
-			cp.getContaPoupanca().setAtivado(true);
-			cp.getContaPoupanca().setTaxaRendimento(0.003);
-			cp.setContaPoupanca(cp);
-			
-			BancoDeDados.insereConta(cp.getNumero(), cp);
-			System.out.println("\nConta Poupança cadastrada com sucesso!\nO número da sua conta é: " + cp.getNumero());
-			
-			return cp;
-		}
+	//Cadastra conta poupança
+	public Conta cadastraContaPoupanca(Conta conta) {
+		ContaPoupanca cp = new ContaPoupanca();
+		conta.setContaPoupanca(cp);
+		cp.setAtivado(true);
+		cp.setContaPoupanca(cp);
+		cp.setCliente(conta.getCliente());
+		cp.setNumero(UUID.randomUUID().toString());
+		cp.setSaldo(0);
+		cp.setTaxaRendimento(0.003);
 		
-	return null;
+		BancoDeDados.insereConta(cp.getNumero(), cp);
+		System.out.println("\nConta Poupança cadastrada com sucesso!\nO número da sua conta é: " + cp.getNumero());
+		return cp;
+	}
+		
+	public boolean login(String cpf, String senha) {
+		boolean var = false;
+		Conta conta = BancoDeDados.buscaContaPorCPF(cpf);
+		if(conta != null) {
+			if(conta.getSenha().equalsIgnoreCase(senha)) {
+				var = true;
+			} else {
+				var = false;
+			}
+		}
+		return var;
 	}
 	
 	public void consultarSaldoContaCorrente(Conta conta) {
@@ -70,7 +79,7 @@ public class ContaBO {
 		System.out.println("Conta Corrente");
 		System.out.println("Nome: " + nome);
 		System.out.println("CPF: " + cpf);
-		System.out.println("Valor: " + valor);
+		System.out.println("Valor: R$" + valor);
 		System.out.println("Tipo: " + tp);
 	}
 	
@@ -79,7 +88,7 @@ public class ContaBO {
 		saldo += valor;
 		conta.setSaldo(saldo);
 		
-		System.out.println("Depósito realizado com sucesso!\nSaldo atual: " + conta.getSaldo());
+		System.out.println("Depósito realizado com sucesso!\nSaldo atual: R$" + conta.getSaldo());
 		BancoDeDados.insereConta(conta.getNumero(), conta);
 	}
 	
@@ -88,10 +97,10 @@ public class ContaBO {
 		if(saldo >= valor) {
 			saldo -= valor;
 			conta.setSaldo(saldo);
-			System.out.println("\nSaque realizado com sucesso!\nSaldo atual: " + conta.getSaldo());
+			System.out.println("\nSaque realizado com sucesso!\nSaldo atual: R$" + conta.getSaldo());
 			BancoDeDados.insereConta(conta.getNumero(), conta);
 		} else {
-			System.out.println("\nSaldo insuficiente!\nSaldo atual: " + conta.getSaldo());
+			System.out.println("\nSaldo insuficiente!\nSaldo atual: R$" + conta.getSaldo());
 		}
 	}
 	
@@ -105,35 +114,13 @@ public class ContaBO {
 			
 			saldoDestino += valor;
 			contaDestino.setSaldo(saldoDestino);
-			System.out.println("Transferência realizado com sucesso!\nSaldo atual: " + conta.getSaldo());
+			System.out.println("Transferência realizado com sucesso!\nSaldo atual: R$" + conta.getSaldo());
 		} else {
-			System.out.println("\nSaldo insuficiente!\nSaldo atual: " + conta.getSaldo());
+			System.out.println("\nSaldo insuficiente!\nSaldo atual: R$" + conta.getSaldo());
 		}
 	}
-	
-	public boolean login(String cpf, String senha) {
-		boolean var = false;
-		Conta conta = BancoDeDados.buscarContaPorCPF(cpf);
-		if(conta != null) {
-			if(conta.getSenha().equalsIgnoreCase(senha)) {
-				var = true;
-			} else {
-				var = false;
-			}
-		}
-		return var;
-	}
-	
-	public Conta validaConta(String cpf) {
-		Conta conta = null;
-		conta = BancoDeDados.buscarContaPorCPF(cpf);
-		if(conta == null) {
-			return null;
-		}
-		return conta;
-	}
-	
-	public boolean valida2(String cpf) {
+		
+	public boolean validaCpf(String cpf) {
 		boolean var = false;
 		boolean verifica = false;
 		verifica = BancoDeDados.validaCPF(cpf);
@@ -145,5 +132,11 @@ public class ContaBO {
 			var = false;
 		}
 		return var;
+	}
+	
+	public void descontarTaxa(Conta conta) {
+		double saldo = conta.getSaldo() * (1-(conta.getContaCorrente().getTaxaManutencao()/100));
+		conta.setSaldo(saldo);
+		System.out.println("Taxa aplicada!\nSaldo atual: R$" + conta.getSaldo());
 	}
 }
