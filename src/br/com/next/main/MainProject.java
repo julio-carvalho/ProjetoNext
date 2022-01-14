@@ -13,6 +13,7 @@ import br.com.next.bean.Conta;
 import br.com.next.bean.ContaPoupanca;
 import br.com.next.bean.Endereco;
 import br.com.next.bean.Pix;
+import br.com.next.bo.CartaoBO;
 import br.com.next.bo.ClienteBO;
 import br.com.next.bo.ContaBO;
 import br.com.next.bo.ContaPoupancaBO;
@@ -38,9 +39,13 @@ public class MainProject {
 		//enquanto continuar for true, roda o menu
 		while(continuar) {
 			//opçoes do menu principal, usuario nao consegue logar sem criar conta
-			System.out.println("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-			System.out.println("            MENU\n* - Digite uma opção:\n1 - Criar conta\n2 - Logar\n3 - Sair");
-			System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+			System.out.println("\n=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=");
+			System.out.println("=-=-=-=-=-=-=- MENU -=-=-=-=-=-=-=");
+			System.out.println("=   --> Digite uma opção:        =");
+			System.out.println("=   1 - Criar conta              =");
+			System.out.println("=   2 - Logar                    =");
+			System.out.println("=   3 - Sair                     =");
+			System.out.println("=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=");
 			opc = scan.nextInt();
 			
 			switch(opc) {
@@ -163,6 +168,7 @@ public class MainProject {
 		ContaBO contaBO = new ContaBO(); 
 		ContaPoupancaBO cpBO = new ContaPoupancaBO();
 		PixBO pixBO = new PixBO();
+		CartaoBO cartaoBO = new CartaoBO();
 		
 		//armazena a conta logada
 		Conta conta = BancoDeDados.buscaContaPorCPF(cpf);
@@ -176,7 +182,7 @@ public class MainProject {
 			System.out.println("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
 			System.out.println("            LOGADO\n*  - Digite uma opção: \n1  - Saque\n2  - Depositar dinheiro\n3  - Consultar Saldo"
 														+ "\n4  - Transferir\n5  - Aplicar Taxa de manutenção\n6  - Abrir uma Conta Poupança\n7  - Acessar menu da Conta Poupança"
-														+ "\n8  - Ativar PIX\n9  - Fazer PIX\n10 - Sair");
+														+ "\n8  - Ativar PIX\n9  - Fazer PIX\n10 - Ativar Cartão de Débito\n11 - Ativar Cartão de Crédito\n12 - Sair");
 			System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
 			menu = scan.nextInt();
 
@@ -342,6 +348,59 @@ public class MainProject {
 					
 				break;
 				case 10:
+					System.out.println("\nAtivar Cartão de Débito");
+					
+					boolean validaCD = false;
+					validaCD = cartaoBO.validaCartaoDebito(conta);
+					
+					if(!validaCD) {
+						System.out.println("Digite o limite de transação: ");
+						double limite = scan.nextDouble();
+						
+						System.out.println("Digite a senha do cartão: ");
+						String senha = scan.next();
+						
+						System.out.println("Digite o tipo de bandeira que você deseja: ");
+						System.out.println("1 - VISA\n2 - MASTERCARD\n3 - ELO");
+						int bandeira = scan.nextInt();
+						
+						while(bandeira < 1 && bandeira > 3) {
+							System.out.println("Opção inválida, digite novamente o tipo de bandeira que você deseja: ");
+							System.out.println("1 - VISA\n2 - MASTERCARD\n3 - ELO");
+							bandeira = scan.nextInt();
+						}
+						cartaoBO.cadastraCartaoDebito(conta, bandeira, limite, senha);
+					} else {
+						System.out.println("\nO seu cartão já está ativado!");
+					}
+					break;
+				case 11:
+					System.out.println("\nAtivar Cartão de Crédito");
+					
+					boolean validaCC = false;
+					validaCC = cartaoBO.validaCartaoCredito(conta);
+					
+					if(!validaCC) {
+					
+						System.out.println("Digite a senha do cartão: ");
+						String senha = scan.next();
+						
+						System.out.println("Digite o tipo de bandeira que você deseja: ");
+						System.out.println("1 - VISA\n2 - MASTERCARD\n3 - ELO");
+						int bandeira = scan.nextInt();
+						
+						while(bandeira < 1 && bandeira > 3) {
+							System.out.println("Opção inválida, digite novamente o tipo de bandeira que você deseja: ");
+							System.out.println("1 - VISA\n2 - MASTERCARD\n3 - ELO");
+							bandeira = scan.nextInt();
+						}
+						cartaoBO.cadastraCartaoCredito(conta, bandeira, 0, senha);
+					} else {
+						System.out.println("\nO seu cartão já está ativado!");
+					}
+					
+					break;
+				case 12:
 					//deixa continuar como false e desloga da conta
 					System.out.println("Deslogando!");
 					continuar = false;

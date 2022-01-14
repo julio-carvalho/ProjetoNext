@@ -11,6 +11,8 @@ public class Conta {
 	private Date data;
 	private ContaCorrente contaCorrente;
 	private ContaPoupanca contaPoupanca;
+	private CartaoCredito cartaoCredito;
+	private CartaoDebito cartaoDebito;
 	
 	public String getNumero() {
 		return numero;
@@ -60,4 +62,18 @@ public class Conta {
 	public void setContaPoupanca(ContaPoupanca contaPoupanca) {
 		this.contaPoupanca = contaPoupanca;
 	}
+	public CartaoCredito getCartaoCredito() {
+		return cartaoCredito;
+	}
+	public void setCartaoCredito(CartaoCredito cartaoCredito) {
+		this.cartaoCredito = cartaoCredito;
+	}
+	public CartaoDebito getCartaoDebito() {
+		return cartaoDebito;
+	}
+	public void setCartaoDebito(CartaoDebito cartaoDebito) {
+		this.cartaoDebito = cartaoDebito;
+	}
+	
+	
 }

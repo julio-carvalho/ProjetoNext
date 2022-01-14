@@ -23,10 +23,9 @@ public class ContaPoupancaBO {
 	//valida se a conta poupança já foi criada
 	public boolean validaContaPoupanca(ContaPoupanca cp) {
 		boolean valida = false;
+		
 		if(cp.isAtivado())
 			valida = true;
-		else
-			valida = false;
 		
 		return valida;
 	}
