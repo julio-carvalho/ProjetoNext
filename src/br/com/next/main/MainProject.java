@@ -13,6 +13,7 @@ import br.com.next.bean.Conta;
 import br.com.next.bean.ContaPoupanca;
 import br.com.next.bean.Endereco;
 import br.com.next.bean.Pix;
+import br.com.next.bean.TipoCliente;
 import br.com.next.bo.CartaoBO;
 import br.com.next.bo.ClienteBO;
 import br.com.next.bo.ContaBO;
@@ -381,24 +382,41 @@ public class MainProject {
 					validaCC = cartaoBO.validaCartaoCredito(conta);
 					
 					if(!validaCC) {
-					
-						System.out.println("Digite a senha do cartão: ");
-						String senha = scan.next();
+						TipoCliente tp = conta.getCliente().getTipoCliente();
+						double limite = 0;
 						
-						System.out.println("Digite o tipo de bandeira que você deseja: ");
-						System.out.println("1 - VISA\n2 - MASTERCARD\n3 - ELO");
-						int bandeira = scan.nextInt();
+						if(tp == TipoCliente.COMUM)
+							limite = 1000;
+						else if(tp == TipoCliente.PREMIUM)
+							limite = 5000;
+						else
+							limite = 12000;
 						
-						while(bandeira < 1 && bandeira > 3) {
-							System.out.println("Opção inválida, digite novamente o tipo de bandeira que você deseja: ");
+						System.out.println("\nO limite do seu cartão é de: R$" + limite);
+						System.out.println("Deseja prosseguir na ativação do cartão de crédito?\n1 - Sim\n2 - Não");
+						int opcProsseguir = scan.nextInt();
+						
+						if(opcProsseguir == 1) {
+							System.out.println("Digite a senha do cartão: ");
+							String senha = scan.next();
+							
+							System.out.println("Digite o tipo de bandeira que você deseja: ");
 							System.out.println("1 - VISA\n2 - MASTERCARD\n3 - ELO");
-							bandeira = scan.nextInt();
+							int bandeira = scan.nextInt();
+							
+							while(bandeira < 1 && bandeira > 3) {
+								System.out.println("Opção inválida, digite novamente o tipo de bandeira que você deseja: ");
+								System.out.println("1 - VISA\n2 - MASTERCARD\n3 - ELO");
+								bandeira = scan.nextInt();
+							}
+							cartaoBO.cadastraCartaoCredito(conta, bandeira, limite, senha);
+						} else {
+							System.out.println("\nVoltando para o menu");
+							continue;
 						}
-						cartaoBO.cadastraCartaoCredito(conta, bandeira, 0, senha);
 					} else {
 						System.out.println("\nO seu cartão já está ativado!");
 					}
-					
 					break;
 				case 12:
 					//deixa continuar como false e desloga da conta
