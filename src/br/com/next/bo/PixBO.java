@@ -30,20 +30,10 @@ public class PixBO {
 		
 		conta.setPix(pix);
 		
-		System.out.println("PIX cadastrado com sucesso!\nA chave do seu PIX é: " + pix.getChave());
+		System.out.println("\nPIX cadastrado com sucesso!\nA chave do seu PIX é: " + pix.getChave());
 		return pix;
 	}
-	
-	public boolean validaPix(Pix pix) {
-		boolean valida = false;
-		if(pix.isAtivado())
-			valida = true;
-		else
-			valida = false;
 		
-		return valida;
-	}
-	
 	public void pagarPix(Conta conta, Conta contaDestino, double valor) {
 		double saldoAtual = conta.getSaldo();
 		double saldoDestino = contaDestino.getSaldo();

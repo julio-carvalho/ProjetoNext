@@ -1,5 +1,6 @@
 package br.com.next.bo;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
@@ -33,14 +34,15 @@ public class ContaBO {
 		cc.getPix().setChave(" ");
 		cc.setCartaoDebito(cartaoDebito);
 		cc.setCartaoCredito(cartaoCredito);
-		
 		cc.setCliente(cliente);
 		cc.setNumero(UUID.randomUUID().toString());
 		cc.setSaldo(0);
 		cc.setSenha(senha);
 		cc.getCliente().setTipoCliente(TipoCliente.COMUM);
-		
 		cc.getContaCorrente().setAtivado(true);
+		
+		
+		cc.setData(this.getAdiciona1Mes());
 		
 		cc.getContaCorrente().setTaxaManutencao(0.45);
 		BancoDeDados.insereConta(cc.getNumero(), cc);
@@ -169,5 +171,13 @@ public class ContaBO {
 		else
 			//conta.setTipo(TipoCliente.PREMIUM);
 			return TipoCliente.PREMIUM;
+	}
+	
+	public Date getAdiciona1Mes() {
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.MONTH, 1);
+		Date data  = cal.getTime();
+		
+		return data;
 	}
 }

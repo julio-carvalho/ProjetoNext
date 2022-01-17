@@ -19,17 +19,7 @@ public class ContaPoupancaBO {
 		System.out.println("Saldo R$: " + valor);
 		//System.out.println("Tipo: " + tp);
 	}
-	
-	//valida se a conta poupança já foi criada
-	public boolean validaContaPoupanca(ContaPoupanca cp) {
-		boolean valida = false;
 		
-		if(cp.isAtivado())
-			valida = true;
-		
-		return valida;
-	}
-	
 	//saque na conta poupança
 	public void sacar(ContaPoupanca cp, double valor) {
 		double saldo = cp.getSaldo();

@@ -19,15 +19,11 @@ public class BancoDeDados {
 	
 	//busca a conta pelo numero
 	public static Conta buscaContaPorNumero(String numeroConta) {
-		
 		Conta conta = BancoDeDados.BANCO_DE_DADOS.get(numeroConta);
-		
 		
 		if(conta == null) {
 			System.out.println("Conta não encontrada!");
 		}
-				
-		
 		return conta;
 	}
 		
@@ -57,6 +53,7 @@ public class BancoDeDados {
 		return var;
 	}
 	
+	//busca uma conta pix com a chave digita pelo usuario e retorna a conta
 	public static Conta buscaPix(String chave) {
 		Conta conta = null;
 		Conta c = null;
@@ -69,6 +66,7 @@ public class BancoDeDados {
 		return c;
 	}
 	
+	//busca uma conta pix com a chave digita pelo usuario e retorna true ou false
 	public static boolean validaPix(String chave) {
 		boolean var = false;
 		

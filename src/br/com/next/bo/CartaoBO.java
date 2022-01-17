@@ -13,6 +13,7 @@ import br.com.next.bean.Conta;
 import br.com.next.utils.BancoDeDados;
 
 public class CartaoBO {
+	
 	public void cadastraCartaoDebito(Conta conta, int bandeira, double limite, String senha) {
 		CartaoDebito cartaoDebito = new CartaoDebito();
 		conta.setCartaoDebito(cartaoDebito);
@@ -30,21 +31,9 @@ public class CartaoBO {
 		else
 			cartaoDebito.setBandeira("ELO");
 		
-		System.out.println("Cartão criado com sucesso!\nO número do cartão é: " + cartaoDebito.getNumero());
+		System.out.println("\nCartão criado com sucesso!\nO número do cartão é: " + cartaoDebito.getNumero());
 	}
-	
-	//valida se o cartão de débito está ativado
-	public boolean validaCartaoDebito(Conta conta) {
-		boolean valida = false;
 		
-		
-		if(conta.getCartaoDebito().isAtivo()) {
-			valida = true;
-		}
-		
-		return valida;
-	}
-	
 	//compra com o cartão de débito
 	public void comprarCartaoDebito(Conta conta, double valor) {
 		double saldoAtual = conta.getSaldo();
@@ -83,31 +72,17 @@ public class CartaoBO {
 		else
 			cartaoCredito.setBandeira("ELO");
 		
-		System.out.println("Cartão criado com sucesso!\nO número do cartão é: " + cartaoCredito.getNumero());
+		System.out.println("\nCartão criado com sucesso!\nO número do cartão é: " + cartaoCredito.getNumero());
 	}
-	
-
-	//valida se o cartão de credito está ativado
-	public boolean validaCartaoCredito(Conta conta) {
-		boolean valida = false;
 		
-		if(conta.getCartaoCredito().isAtivo())
-			valida = true;
-		
-		return valida;
-	}
-	
 	//realiza compra com cartão de crédito
 	public void comprarCartaoCredito(Conta conta, double valor) {
-		double saldoAtual = conta.getSaldo();
 		double limite = conta.getCartaoCredito().getLimite();
 		if(limite >= valor) {
-				
-				 Compra compra = new Compra(new Date(), valor);
-				 conta.getCartaoCredito().addCompras(compra);
-				
+
+			adicionaCompra(conta, valor);
 			double fatura = conta.getCartaoCredito().getFatura();
-			//adicionaCompra(conta, valor);
+			
 				
 			limite -= valor;
 			conta.getCartaoCredito().setLimite(limite);
@@ -117,10 +92,16 @@ public class CartaoBO {
 							
 			BancoDeDados.insereConta(conta.getNumero(), conta);
 			
-			System.out.println("\nCompra realizada com sucesso!\nSaldo atual: R$" + conta.getSaldo());
+			System.out.println("\nCompra realizada com sucesso!\nFatura atual: R$" + conta.getCartaoCredito().getFatura());
 		} else {
 			System.out.println("Limite de compra atingido!");
 		}
+	}
+	
+	//adiciona compra
+	public void adicionaCompra(Conta conta, double valor) {
+		Compra compra = new Compra(new Date(), valor);
+		conta.getCartaoCredito().getCompras().add(compra);
 	}
 	
 	//exibi a fatura e os dados do cartão de crédito
@@ -152,9 +133,19 @@ public class CartaoBO {
 		System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
 		
 	}
-	public void adicionaCompra(Conta conta, double valor) {
-		Compra compra = new Compra(new Date(), valor);
-		conta.getCartaoCredito().getCompras().add(compra);
+	
+	public void pagarFatura(Conta conta) {
+		double saldoAtual = conta.getSaldo();
+		double fatura = conta.getCartaoCredito().getFatura();
+		
+		if(saldoAtual >= fatura) {
+			saldoAtual -= fatura;
+			conta.setSaldo(saldoAtual);
+			conta.getCartaoCredito().setFatura(0);
+			System.out.println("\nFatura paga com sucesso.\nSaldo atual: R$" + conta.getSaldo());
+		} else {
+			System.out.println("\nSaldo insuficiente.\nSaldo atual: R$" + conta.getSaldo());
+		}
 	}
 	
 	//desativa cartao
@@ -166,9 +157,10 @@ public class CartaoBO {
 			System.out.println("Cartão de Débito desativado");
 		} else {
 			if(conta.getCartaoCredito().getFatura() == 0) {
-				
+				conta.getCartaoCredito().setAtivo(false);
+				System.out.println("Cartão de Crédito desativado");
 			} else {
-				System.out.println("Você precisa pagar a fatura do cartão para poder cancela-lo");
+				System.out.println("Você precisa pagar a fatura do cartão para poder cancela-lo.\nFatura atual: R$" + conta.getCartaoCredito().getFatura());
 			}
 		}
 	}
@@ -176,7 +168,7 @@ public class CartaoBO {
 	
 	public Date getAdiciona1Mes() {
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.YEAR, 1);
+		cal.add(Calendar.MONTH, 1);
 		Date data  = cal.getTime();
 		
 		return data;

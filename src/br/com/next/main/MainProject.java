@@ -24,10 +24,10 @@ import br.com.next.utils.BancoDeDados;
 import br.com.next.utils.Menu;
 
 public class MainProject {
-	ClienteBO clienteBo = new ClienteBO();
+	
+	static Menu menu = new Menu();
 	
 	public static void main(String[] args) {
-		
 		menuPrincipal();
 		System.exit(0);
 	}
@@ -41,14 +41,7 @@ public class MainProject {
 		
 		//enquanto continuar for true, roda o menu
 		while(continuar) {
-			//opçoes do menu principal, usuario nao consegue logar sem criar conta
-			System.out.println("\n=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=");
-			System.out.println("=-=-=-=-=-=-=- MENU -=-=-=-=-=-=-=");
-			System.out.println("=   --> Digite uma opção:        =");
-			System.out.println("=   1 - Criar conta              =");
-			System.out.println("=   2 - Logar                    =");
-			System.out.println("=   3 - Sair                     =");
-			System.out.println("=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=");
+			menu.menuPrincipal();
 			opc = scan.nextInt();
 			
 			switch(opc) {
@@ -82,15 +75,24 @@ public class MainProject {
 					}
 					
 					//data de nascimento
+					boolean verificaData = false;
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-					System.out.println("Informe a data de nascimento: (dd/MM/yyyy)");
-					String data = scan.next();
 					Date dataNascimento = null;
-					try {
-						dataNascimento = sdf.parse(data);
-					} catch (ParseException e) {
-						System.out.println("Data de nascimento inválida");
+
+					while(!verificaData) {
+						
+						System.out.println("Informe a data de nascimento: (dd/MM/yyyy)");
+						String data = scan.next();
+						
+						try {
+							dataNascimento = sdf.parse(data);
+							verificaData = true;
+						} catch (ParseException e) {
+							System.out.println("Data de nascimento inválida.");
+							verificaData = false;
+						}
 					}
+					
 					
 					//leitura dados do endereço
 					System.out.println("\nCadastro Endereço");
@@ -168,7 +170,6 @@ public class MainProject {
 		Scanner scan = new Scanner(System.in);
 		Scanner scanString = new Scanner(System.in);
 		
-		Menu menu = new Menu();
 		ContaBO contaBO = new ContaBO(); 
 		ContaPoupancaBO cpBO = new ContaPoupancaBO();
 		PixBO pixBO = new PixBO();
@@ -247,46 +248,38 @@ public class MainProject {
 				case 6:
 					System.out.println("\nCriar Conta Poupança");
 					
-					int opcConta = 0;
-					System.out.println("Você deseja abrir uma Conta Poupança?"
-							+ "\nA conta poupança tem a vantagem de oferecer um rendimento em cima do valor de saldo, na porcentagem de 0.03%."
-							+ "\n1 - Sim\n2 - Não");
-					opcConta = scan.nextInt();
-					
-					if(opcConta == 1) {
-						boolean validacao = false;
+					if(!conta.getContaPoupanca().isAtivado()) {
+						int opcConta = 0;
+						System.out.println("Você deseja abrir uma Conta Poupança?"
+								+ "\nA conta poupança tem a vantagem de oferecer um rendimento em cima do valor de saldo, na porcentagem de 0.03%."
+								+ "\n1 - Sim\n2 - Não");
+						opcConta = scan.nextInt();
 						
-						//valida se a conta já foi criada
-						ContaPoupanca contaP = conta.getContaPoupanca();
-						validacao = cpBO.validaContaPoupanca(contaP);
-						if(!validacao)
+						if(opcConta == 1) {
+							//cadastrando conta poupança	
 							contaBO.cadastraContaPoupanca(conta);
-						else
-							System.out.println("Sua Conta Poupança já está ativada.");
+						} else {
+							System.out.println("Voltando ao menu");
+							continue;
+						}
 					} else {
-						System.out.println("Voltando ao menu");
+						System.out.println("Sua Conta Poupança já está ativada.");
 					}
 				break;
 				case 7:
 					System.out.println("\nAcessar menu Conta Poupança");
-					boolean validacao = false;
-					
-					//valida se a conta já foi criada
-					ContaPoupanca contaP = conta.getContaPoupanca();
-					validacao = cpBO.validaContaPoupanca(contaP);
-					if(validacao) {
-						System.out.println("\nAcessando menu Conta Poupança!");
-						menuContaPoupanca(contaP, conta);
-					} else {
+					//valida se a conta poupança está ativada
+					if(conta.getContaPoupanca().isAtivado())
+						menuContaPoupanca(conta.getContaPoupanca(), conta);
+					else
 						System.out.println("\nSua Conta Poupança está desativada!");
-					}
+					
 				break;
 				case 8:
 					System.out.println("\nAtivar PIX");
 					
-					Pix pix = conta.getPix();
-					
-					if(!pixBO.validaPix(pix)) {
+					//valida se o pix já está ativado
+					if(!conta.getPix().isAtivado()) {
 						String chave = "";
 						System.out.println("Digite a opção do tipo de chave que você deseja cadastrar: ");
 						System.out.println("1 - CPF\n2 - EMAIL\n3 - TELEFONE\n4 - CHAVE ALEATÓRIA");
@@ -305,16 +298,15 @@ public class MainProject {
 							chave = scan.next();
 						}
 						pixBO.cadastrarPix(conta, opcChave, chave);
-					}else {
+					} else {
 						System.out.println("Seu pix já está ativado.");
 					}
 				break;
 				case 9:
 					System.out.println("Fazer PIX");
-					Pix pixValida = conta.getPix();
 					
-					//valida se o pix já está ativado
-					if(pixBO.validaPix(pixValida)) {
+					//valida se o pix está ativado
+					if(conta.getPix().isAtivado()) {
 						int opcPix = 0;
 						valida = false;
 						
@@ -349,11 +341,7 @@ public class MainProject {
 				break;
 				case 10:
 					System.out.println("\nAtivar Cartão de Débito");
-					
-					valida = false;
-					valida = cartaoBO.validaCartaoDebito(conta);
-					
-					if(!valida) {
+					if(!conta.getCartaoDebito().isAtivo()) {
 						System.out.println("Digite o limite de transação: ");
 						double limite = scan.nextDouble();
 						
@@ -382,14 +370,15 @@ public class MainProject {
 					break;
 				case 11:
 					System.out.println("\nDesativar Cartão Débito");
+					if(conta.getCartaoDebito().isAtivo()) {
+						cartaoBO.desativaCartao(conta, 1);
+					} else {
+						System.out.println("\nO cartão de débito já está desativado");
+					}
 					break;
 				case 12:
-					System.out.println("\nRealizar compra com débito");
-					
-					valida = false;
-					valida = cartaoBO.validaCartaoDebito(conta);
-					
-					if(valida) {
+					System.out.println("\nRealizar compra com débito");	
+					if(conta.getCartaoDebito().isAtivo()) {
 						System.out.println("Digite a senha do cartão: ");
 						String senha = scan.next();
 						
@@ -408,11 +397,7 @@ public class MainProject {
 					break;
 				case 13:
 					System.out.println("\nAtivar Cartão de Crédito");
-					
-					valida = false;
-					valida = cartaoBO.validaCartaoCredito(conta);
-					
-					if(!valida) {
+					if(!conta.getCartaoCredito().isAtivo()) {
 						TipoCliente tp = conta.getCliente().getTipoCliente();
 						double limite = 0;
 						
@@ -457,13 +442,15 @@ public class MainProject {
 					break;
 				case 14:
 					System.out.println("\n15 - Desativar cartão crédito");
+					if(conta.getCartaoCredito().isAtivo()) {
+						cartaoBO.desativaCartao(conta, 2);
+					} else {
+						System.out.println("\nO cartão de crédito já está desativado");
+					}
 					break;
 				case 15:
 					System.out.println("\nRealizar compra com crédito");
-					valida = false;
-					valida = cartaoBO.validaCartaoCredito(conta);
-					
-					if(valida) {
+					if(conta.getCartaoCredito().isAtivo()) {
 						System.out.println("Digite a senha do cartão: ");
 						String senha = scan.next();
 						
@@ -482,9 +469,31 @@ public class MainProject {
 					break;
 				case 16:
 					System.out.println("\nExibir Fatura");
-					cartaoBO.exibirFatura(conta);
-					break;
+					if(conta.getCartaoCredito().isAtivo())
+						cartaoBO.exibirFatura(conta);
+					else
+						System.out.println("\nO cartão de crédito está desativado!");
+					
+				break;
 				case 17:
+					System.out.println("\nPagar fatura do cartão de crédito");
+					
+					if(conta.getCartaoCredito().isAtivo()) {
+						System.out.println("A fatura atual é : R$" + conta.getCartaoCredito().getFatura());
+						System.out.println("Dseja pagar a fatura usando o seu saldo atual?\n1 - Sim\n2 - Não");
+						int opcFatura = scan.nextInt();
+						
+						if(opcFatura == 1)
+							cartaoBO.pagarFatura(conta);
+						else
+							continue;
+						
+					} else {
+						System.out.println("\nO cartão de crédito está desativado!");
+					}
+
+				break;
+				case 18:
 					//deixa continuar como false e desloga da conta
 					System.out.println("Deslogando!");
 					continuar = false;
@@ -501,18 +510,15 @@ public class MainProject {
 		Scanner scanString = new Scanner(System.in);
 		ContaPoupancaBO cpb = new ContaPoupancaBO();
 		
-		int menu = 0;
+		int opcMenu = 0;
 		double valor = 0;
 		boolean continuar = true;
 		
 		while(continuar) {
-			System.out.println("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-			System.out.println("        MENU CONTA POUPANÇA\n* - Digite uma opção: \n1 - Saque\n2 - Depositar dinheiro\n3 - Consultar Saldo"
-														+ "\n4 - Transferir para Conta Corrente\n5 - Transferir para outro tipo de conta\n6 - Aplicar rendimento\n7 - Sair");
-			System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-			menu = scan.nextInt();
+			menu.menuContaPoupanca();
+			opcMenu = scan.nextInt();
 
-			switch(menu) {
+			switch(opcMenu) {
 				case 1:
 					System.out.println("\nSaque");
 					System.out.println("Digite o valor do saque: ");
