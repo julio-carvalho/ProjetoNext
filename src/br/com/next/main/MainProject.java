@@ -21,11 +21,13 @@ import br.com.next.bo.ContaPoupancaBO;
 import br.com.next.bo.EnderecoBO;
 import br.com.next.bo.PixBO;
 import br.com.next.utils.BancoDeDados;
+import br.com.next.utils.Menu;
 
 public class MainProject {
 	ClienteBO clienteBo = new ClienteBO();
 	
 	public static void main(String[] args) {
+		
 		menuPrincipal();
 		System.exit(0);
 	}
@@ -60,7 +62,7 @@ public class MainProject {
 					System.out.println("Digite seu nome: ");
 					nome = scan.nextLine();
 					
-					System.out.println("Digite seu cpf: ");
+					System.out.println("Digite seu CPF: ");
 					cpf = scan.next();
 					
 					//verifica se o cpf possui 11 caracteres e apenas números
@@ -166,6 +168,7 @@ public class MainProject {
 		Scanner scan = new Scanner(System.in);
 		Scanner scanString = new Scanner(System.in);
 		
+		Menu menu = new Menu();
 		ContaBO contaBO = new ContaBO(); 
 		ContaPoupancaBO cpBO = new ContaPoupancaBO();
 		PixBO pixBO = new PixBO();
@@ -175,19 +178,15 @@ public class MainProject {
 		Conta conta = BancoDeDados.buscaContaPorCPF(cpf);
 
 		
-		int menu = 0;
+		int opcMenu = 0;
 		double valor = 0;
-		boolean continuar = true;
+		boolean continuar = true, valida = false;
 		
 		while(continuar) {
-			System.out.println("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-			System.out.println("            LOGADO\n*  - Digite uma opção: \n1  - Saque\n2  - Depositar dinheiro\n3  - Consultar Saldo"
-														+ "\n4  - Transferir\n5  - Aplicar Taxa de manutenção\n6  - Abrir uma Conta Poupança\n7  - Acessar menu da Conta Poupança"
-														+ "\n8  - Ativar PIX\n9  - Fazer PIX\n10 - Ativar Cartão de Débito\n11 - Ativar Cartão de Crédito\n12 - Sair");
-			System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-			menu = scan.nextInt();
+			menu.menuLogado();
+			opcMenu = scan.nextInt();
 
-			switch(menu) {
+			switch(opcMenu) {
 				case 1:
 					System.out.println("\nSaque");
 					System.out.println("Digite o valor do saque: ");
@@ -317,7 +316,7 @@ public class MainProject {
 					//valida se o pix já está ativado
 					if(pixBO.validaPix(pixValida)) {
 						int opcPix = 0;
-						boolean valida = false;
+						valida = false;
 						
 						System.out.println("Digite a chave do pix: ");
 						String chave = scan.next();
@@ -351,15 +350,21 @@ public class MainProject {
 				case 10:
 					System.out.println("\nAtivar Cartão de Débito");
 					
-					boolean validaCD = false;
-					validaCD = cartaoBO.validaCartaoDebito(conta);
+					valida = false;
+					valida = cartaoBO.validaCartaoDebito(conta);
 					
-					if(!validaCD) {
+					if(!valida) {
 						System.out.println("Digite o limite de transação: ");
 						double limite = scan.nextDouble();
 						
 						System.out.println("Digite a senha do cartão: ");
 						String senha = scan.next();
+						
+						//verifica se a senha possui 4 números
+						while (!senha.matches("[0-9]*") || senha.length() != 4) {
+							System.out.println("Senha inválida, a senha deve possuir 4 números. Digite novamente: ");
+							senha = scan.next();
+						}
 						
 						System.out.println("Digite o tipo de bandeira que você deseja: ");
 						System.out.println("1 - VISA\n2 - MASTERCARD\n3 - ELO");
@@ -376,12 +381,38 @@ public class MainProject {
 					}
 					break;
 				case 11:
+					System.out.println("\nDesativar Cartão Débito");
+					break;
+				case 12:
+					System.out.println("\nRealizar compra com débito");
+					
+					valida = false;
+					valida = cartaoBO.validaCartaoDebito(conta);
+					
+					if(valida) {
+						System.out.println("Digite a senha do cartão: ");
+						String senha = scan.next();
+						
+						if(senha.equalsIgnoreCase(conta.getCartaoDebito().getSenha())) {
+							System.out.println("Digite o valor da compra: ");
+							valor = scan.nextDouble();
+							
+							cartaoBO.comprarCartaoDebito(conta, valor);
+						} else {
+							System.out.println("\nSenha inválida");
+							continue;
+						}
+					} else {
+						System.out.println("\nO cartão de débito está desativado!");
+					}
+					break;
+				case 13:
 					System.out.println("\nAtivar Cartão de Crédito");
 					
-					boolean validaCC = false;
-					validaCC = cartaoBO.validaCartaoCredito(conta);
+					valida = false;
+					valida = cartaoBO.validaCartaoCredito(conta);
 					
-					if(!validaCC) {
+					if(!valida) {
 						TipoCliente tp = conta.getCliente().getTipoCliente();
 						double limite = 0;
 						
@@ -399,6 +430,12 @@ public class MainProject {
 						if(opcProsseguir == 1) {
 							System.out.println("Digite a senha do cartão: ");
 							String senha = scan.next();
+							
+							//verifica se a senha possui 4 números
+							while (!senha.matches("[0-9]*") || senha.length() != 4) {
+								System.out.println("Senha inválida, a senha deve possuir 4 números. Digite novamente: ");
+								senha = scan.next();
+							}
 							
 							System.out.println("Digite o tipo de bandeira que você deseja: ");
 							System.out.println("1 - VISA\n2 - MASTERCARD\n3 - ELO");
@@ -418,7 +455,36 @@ public class MainProject {
 						System.out.println("\nO seu cartão já está ativado!");
 					}
 					break;
-				case 12:
+				case 14:
+					System.out.println("\n15 - Desativar cartão crédito");
+					break;
+				case 15:
+					System.out.println("\nRealizar compra com crédito");
+					valida = false;
+					valida = cartaoBO.validaCartaoCredito(conta);
+					
+					if(valida) {
+						System.out.println("Digite a senha do cartão: ");
+						String senha = scan.next();
+						
+						if(senha.equalsIgnoreCase(conta.getCartaoCredito().getSenha())) {
+							System.out.println("Digite o valor da compra: ");
+							valor = scan.nextDouble();
+							
+							cartaoBO.comprarCartaoCredito(conta, valor);
+						} else {
+							System.out.println("\nSenha inválida");
+							continue;
+						}
+					} else {
+						System.out.println("\nO cartão de crédito está desativado!");
+					}
+					break;
+				case 16:
+					System.out.println("\nExibir Fatura");
+					cartaoBO.exibirFatura(conta);
+					break;
+				case 17:
 					//deixa continuar como false e desloga da conta
 					System.out.println("Deslogando!");
 					continuar = false;

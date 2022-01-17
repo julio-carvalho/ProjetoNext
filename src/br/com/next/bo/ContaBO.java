@@ -3,6 +3,8 @@ package br.com.next.bo;
 import java.util.Date;
 import java.util.UUID;
 
+import br.com.next.bean.CartaoCredito;
+import br.com.next.bean.CartaoDebito;
 import br.com.next.bean.Cliente;
 import br.com.next.bean.Conta;
 import br.com.next.bean.ContaCorrente;
@@ -21,11 +23,16 @@ public class ContaBO {
 		ContaCorrente contaCorrente = new ContaCorrente();
 		ContaPoupanca contaPoupanca = new ContaPoupanca();
 		Pix pix = new Pix();
+		CartaoDebito cartaoDebito = new CartaoDebito();
+		CartaoCredito cartaoCredito = new CartaoCredito();
+		
 		
 		cc.setContaCorrente(contaCorrente);
 		cc.setContaPoupanca(contaPoupanca);
 		cc.setPix(pix);
 		cc.getPix().setChave(" ");
+		cc.setCartaoDebito(cartaoDebito);
+		cc.setCartaoCredito(cartaoCredito);
 		
 		cc.setCliente(cliente);
 		cc.setNumero(UUID.randomUUID().toString());
@@ -132,6 +139,7 @@ public class ContaBO {
 			conta.getCliente().setTipoCliente(aux);
 			
 			BancoDeDados.insereConta(conta.getNumero(), conta);
+			BancoDeDados.insereConta(contaDestino.getNumero(), contaDestino);
 		} else {
 			System.out.println("\nSaldo insuficiente!\nSaldo atual: R$" + conta.getSaldo());
 		}

@@ -1,5 +1,6 @@
 package br.com.next.bean;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -7,14 +8,18 @@ public class CartaoCredito extends Cartao {
 	private List<Compra> compras;
 	private double limite;
 	private Date dataVencimento;
-	private double valorFatura;
+	private double fatura;
 	private Conta conta;
+	
+	public CartaoCredito() {
+		this.compras = new ArrayList<Compra>();
+	}
 	
 	public List<Compra> getCompras() {
 		return compras;
 	}
-	public void setCompras(List<Compra> compras) {
-		this.compras = compras;
+	public void addCompras(Compra compra) {
+		this.compras.add(compra);
 	}
 	public double getLimite() {
 		return limite;
@@ -28,11 +33,11 @@ public class CartaoCredito extends Cartao {
 	public void setDataVencimento(Date dataVencimento) {
 		this.dataVencimento = dataVencimento;
 	}
-	public double getValorFatura() {
-		return valorFatura;
+	public double getFatura() {
+		return fatura;
 	}
-	public void setValorFatura(double valorFatura) {
-		this.valorFatura = valorFatura;
+	public void setFatura(double fatura) {
+		this.fatura = fatura;
 	}
 	public Conta getConta() {
 		return conta;
