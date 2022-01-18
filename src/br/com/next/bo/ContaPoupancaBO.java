@@ -13,11 +13,14 @@ public class ContaPoupancaBO {
 		double valor = cp.getSaldo();
 		//TipoCliente tp = cp.getCliente().getTipoCliente();
 		
-		System.out.println("Conta Poupança");
-		System.out.println("Nome: " + nome);
-		System.out.println("CPF: " + cpf);
-		System.out.println("Saldo R$: " + valor);
+		System.out.println("\n+----------------------------------------------------------------------+");
+		System.out.println("|                            CONTA POUPANÇA                            |");
+		System.out.println("+----------------------------------------------------------------------+");
+		System.out.println(" * Nome: " + nome);
+		System.out.println(" * CPF: " + cpf);
+		System.out.println(" * Saldo R$: " + valor);
 		//System.out.println("Tipo: " + tp);
+		System.out.println("+----------------------------------------------------------------------+");
 	}
 		
 	//saque na conta poupança

@@ -53,7 +53,7 @@ public class CartaoBO {
 		}
 	}
 	
-	public void cadastraCartaoCredito(Conta conta, int bandeira, double limite, String senha) {
+	public void cadastraCartaoCredito(Conta conta, int bandeira, double limite, String senha, int dia) {
 		CartaoCredito cartaoCredito = new CartaoCredito();
 		conta.setCartaoCredito(cartaoCredito);
 		cartaoCredito.setAtivo(true);
@@ -61,7 +61,7 @@ public class CartaoBO {
 		cartaoCredito.setNumero(UUID.randomUUID().toString());
 		cartaoCredito.setLimite(limite);
 		cartaoCredito.setSenha(senha);
-		cartaoCredito.setDataVencimento(this.getAdiciona1Mes());
+		cartaoCredito.setDataVencimento(this.ajustaData(dia));
 		cartaoCredito.setFatura(0);
 		
 		//defini tipo bandeira
@@ -108,18 +108,21 @@ public class CartaoBO {
 	public void exibirFatura(Conta conta) {
 		List<Compra> lCompra = conta.getCartaoCredito().getCompras();
 		
-		System.out.println("\n=-=-=-=-=-= DADOS =-=-=-=-=-=");
 		
-		System.out.println("\nDados Cartão do Crédito da conta: " + conta.getNumero());
-		System.out.println("Nome: " + conta.getCliente().getNome());
-		System.out.println("Limite: " + conta.getCartaoCredito().getLimite());
+		System.out.println("\n+----------------------------------------------------------------------+");
+		System.out.println("|                                DADOS                                 |");
+		System.out.println("+----------------------------------------------------------------------+");
+		System.out.println(" * Número da conta: " + conta.getNumero());
+		System.out.println(" * Nome: " + conta.getCliente().getNome());
+		System.out.println(" * Limite disponível: " + conta.getCartaoCredito().getLimite());
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		String data = sdf.format(conta.getCartaoCredito().getDataVencimento());
-		System.out.println("Data vencimento da fatura: " + data);
+		System.out.println(" * Data vencimento da próxima fatura: " + data);
 		
-		System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-		System.out.println("=-=-=-=-=- COMPRAS -=-=-=-=-=");
+		System.out.println("+----------------------------------------------------------------------+");
+		System.out.println("|                               COMPRAS                                |");
+		System.out.println("+----------------------------------------------------------------------+");
 		
 		SimpleDateFormat sdfComHora = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
 		
@@ -127,10 +130,11 @@ public class CartaoBO {
 			String dataDaCompra = sdfComHora.format(compra.getData());
 			double valorDaCompra = compra.getValor();
 			
-			System.out.println("Compra realizada no dia " + dataDaCompra + " no valor de R$" + valorDaCompra);
+			System.out.println(" * Compra realizada no dia " + dataDaCompra + " no valor de R$" + valorDaCompra);
 		}
-		System.out.println("Fatura Total: R$: " + conta.getCartaoCredito().getFatura());
-		System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+		System.out.println("+----------------------------------------------------------------------+");
+		System.out.println(" * Fatura Total: R$: " + conta.getCartaoCredito().getFatura());
+		System.out.println("+----------------------------------------------------------------------+\n");
 		
 	}
 	
@@ -143,6 +147,7 @@ public class CartaoBO {
 			conta.setSaldo(saldoAtual);
 			conta.getCartaoCredito().setFatura(0);
 			System.out.println("\nFatura paga com sucesso.\nSaldo atual: R$" + conta.getSaldo());
+			BancoDeDados.insereConta(conta.getNumero(), conta);
 		} else {
 			System.out.println("\nSaldo insuficiente.\nSaldo atual: R$" + conta.getSaldo());
 		}
@@ -164,15 +169,28 @@ public class CartaoBO {
 			}
 		}
 	}
-	
-	
-	public Date getAdiciona1Mes() {
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MONTH, 1);
-		Date data  = cal.getTime();
 		
+	public Date ajustaData(int diaDoMes) {
+		//verifica qual o dia o usuário escolhe
+		int dia = 0;
+		if(diaDoMes == 1)
+			dia = 3;
+		else if(diaDoMes == 2)
+			dia = 12;
+		else if(diaDoMes == 3)
+			dia = 16;
+		else if(diaDoMes == 4)
+			dia = 22;
+		else if(diaDoMes == 5)
+			dia = 27;
+				
+		Calendar cal = Calendar.getInstance();
+		//adiciona o dia solicitado
+		cal.set(Calendar.DAY_OF_MONTH, dia);
+		//acrescenta um mes
+		cal.add(Calendar.MONTH, 1);
+		
+		Date data = cal.getTime();
 		return data;
 	}
-
-
 }

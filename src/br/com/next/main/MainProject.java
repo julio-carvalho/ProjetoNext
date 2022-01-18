@@ -358,7 +358,7 @@ public class MainProject {
 						System.out.println("1 - VISA\n2 - MASTERCARD\n3 - ELO");
 						int bandeira = scan.nextInt();
 						
-						while(bandeira < 1 && bandeira > 3) {
+						while(bandeira < 1 || bandeira > 3) {
 							System.out.println("Opção inválida, digite novamente o tipo de bandeira que você deseja: ");
 							System.out.println("1 - VISA\n2 - MASTERCARD\n3 - ELO");
 							bandeira = scan.nextInt();
@@ -426,12 +426,22 @@ public class MainProject {
 							System.out.println("1 - VISA\n2 - MASTERCARD\n3 - ELO");
 							int bandeira = scan.nextInt();
 							
-							while(bandeira < 1 && bandeira > 3) {
+							while(bandeira < 1 || bandeira > 3) {
 								System.out.println("Opção inválida, digite novamente o tipo de bandeira que você deseja: ");
 								System.out.println("1 - VISA\n2 - MASTERCARD\n3 - ELO");
 								bandeira = scan.nextInt();
 							}
-							cartaoBO.cadastraCartaoCredito(conta, bandeira, limite, senha);
+							
+							menu.menuDiaVencimento();
+							int dia = scan.nextInt();
+							
+							while(dia < 1 || dia > 5) {
+								System.out.println("Opção inválida.");
+								menu.menuDiaVencimento();
+								dia = scan.nextInt();
+							}
+							
+							cartaoBO.cadastraCartaoCredito(conta, bandeira, limite, senha, dia);
 						} else {
 							System.out.println("\nVoltando para o menu");
 							continue;
@@ -441,7 +451,7 @@ public class MainProject {
 					}
 					break;
 				case 14:
-					System.out.println("\n15 - Desativar cartão crédito");
+					System.out.println("\nDesativar cartão crédito");
 					if(conta.getCartaoCredito().isAtivo()) {
 						cartaoBO.desativaCartao(conta, 2);
 					} else {
@@ -556,7 +566,7 @@ public class MainProject {
 						System.out.println("Valor inválido, digite novamente o valor do depósito: ");
 						valor = scan.nextDouble();
 					}
-					
+										
 					cpb.transferir(contaPoup, conta, valor);
 				break;
 				case 5:

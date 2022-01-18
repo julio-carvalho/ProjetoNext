@@ -83,14 +83,17 @@ public class ContaBO {
 	public void consultarSaldoContaCorrente(Conta conta) {
 		String nome = conta.getCliente().getNome();
 		String cpf = conta.getCliente().getCpf();
-		double valor = conta.getSaldo();
+		double saldo = conta.getSaldo();
 		TipoCliente tp = conta.getCliente().getTipoCliente();
 		
-		System.out.println("Conta Corrente");
-		System.out.println("Nome: " + nome);
-		System.out.println("CPF: " + cpf);
-		System.out.println("Valor: R$" + valor);
-		System.out.println("Tipo: " + tp);
+		System.out.println("\n+----------------------------------------------------------------------+");
+		System.out.println("|                            CONTA CORRENTE                            |");
+		System.out.println("+----------------------------------------------------------------------+");
+		System.out.println(" * Nome: " + nome);
+		System.out.println(" * CPF: " + cpf);
+		System.out.println(" * Saldo: R$" + saldo);
+		System.out.println(" * Tipo: " + tp);
+		System.out.println("+----------------------------------------------------------------------+");
 	}
 	
 	public void depositar(Conta conta, double valor) {
